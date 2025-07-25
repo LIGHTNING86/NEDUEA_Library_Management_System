@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            margin-right: 10px;
+        }
+        input[type="submit"] {
+            padding: 8px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library Management System</h1>
+
+    <!-- Display Library -->
+    <h2>Books in Library</h2>
+    {% if library %}
+    <table>
+        <thead>
+            <tr>
+                <th>ISBN</th>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for isbn, title in library.items() %}
+            <tr>
+                <td>{{ isbn }}</td>
+                <td>{{ title }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No books in the library.</p>
+    {% endif %}
+
+    <!-- Add Book -->
+    <h2>Add a Book</h2>
+    <form action="/add" method="POST">
+        <input type="text" name="isbn" placeholder="Enter ISBN" required>
+        <input type="text" name="title" placeholder="Enter Book Title" required>
+        <input type="submit" value="Add Book">
+    </form>
+
+    <!-- Search Book -->
+    <h2>Search for a Book</h2>
+    <form action="/search" method="GET">
+        <input type="text" name="isbn" placeholder="Enter ISBN" required>
+        <input type="submit" value="Search">
+    </form>
+
+    <!-- Remove Book -->
+    <h2>Remove a Book</h2>
+    <form action="/remove" method="POST">
+        <input type="text" name="isbn" placeholder="Enter ISBN" required>
+        <input type="submit" value="Remove Book">
+    </form>
+</body>
+</html>
