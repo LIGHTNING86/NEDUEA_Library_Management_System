@@ -13,9 +13,43 @@ def validateISBN(isbn):
     pattern = r'^(\d{2}-\d{4}-\d{3}-\d{1}|978-\d{1,2}-\d{3,5}-\d{2}-\d{1})$'
     return bool(re.match(pattern, isbn))
 
+def validateISBNChecksum(isbn):
+    # Remove dashes for processing
+    isbn_digits = re.sub(r'[^0-9X]', '', isbn)
+
+    if len(isbn_digits) == 10:
+        total = 0
+        for i in range(9):
+            if not isbn_digits[i].isdigit():
+                return False
+            total += int(isbn_digits[i]) * (10 - i)
+        checksum = isbn_digits[9]
+        if checksum == 'X':
+            total += 10
+        elif checksum.isdigit():
+            total += int(checksum)
+        else:
+            return False
+        return total % 11 == 0
+
+    elif len(isbn_digits) == 13:
+        total = 0
+        for i in range(12):
+            if not isbn_digits[i].isdigit():
+                return False
+            total += int(isbn_digits[i]) * (1 if i % 2 == 0 else 3)
+        if not isbn_digits[12].isdigit():
+            return False
+        total += int(isbn_digits[12])
+        return total % 10 == 0
+
+    return False
+  
+
+
 def add_book():
     isbn = input("Enter ISBN to add: ")
-    if validateISBN(isbn):
+    if validateISBN(isbn) and validateISBNChecksum(isbn):
         if isbn in library:
             print("Book with this ISBN already exists.")
         else:
