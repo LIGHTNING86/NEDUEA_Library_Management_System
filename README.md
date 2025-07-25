@@ -21,8 +21,9 @@ Follow these steps to set up and run the application:
 ### 1. Clone the Repository
 
 ```bash
+cd C:
 git clone https://github.com/LIGHTNING86/NEDUEA_Library_Management_System.git
-cd library-management-system
+cd NEDUEA_Library_Management_System
 ```
 ## Install Dependencies
 
