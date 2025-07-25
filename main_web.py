@@ -1,9 +1,21 @@
 import sqlite3
+import re # <-- Added this import
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key_for_production'
 DATABASE = 'library.db'
+
+# --- ISBN Validation Function (from your original code) ---
+def validateISBN(isbn):
+    """
+    Validates the ISBN using a regular expression.
+    Supports:
+    - ISBN-10: Format (e.g., 12-1234-123-1)
+    - ISBN-13: Formats (e.g., 978-0-618-26030-0, 978-93-96055-02-6)
+    """
+    pattern = r'^(\d{2}-\d{4}-\d{3}-\d{1}|978-\d{1,2}-\d{3,5}-\d{2}-\d{1})$'
+    return bool(re.match(pattern, isbn))
 
 # --- Database Setup ---
 def init_db():
@@ -26,7 +38,7 @@ def init_db():
 def home():
     """Displays all books from the database."""
     conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row  # This allows accessing columns by name
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM books ORDER BY title")
     books = cursor.fetchall()
@@ -41,9 +53,14 @@ def add_book():
     author = request.form.get('author')
     year = request.form.get('year')
 
-    # Basic validation
-    if not all([isbn, title, author, year]):
-        flash("Error: All fields are required.", 'danger')
+    # --- Use the validation logic ---
+    if not validateISBN(isbn):
+        flash("Error: Invalid ISBN format. Please use a valid format (e.g., 978-XX-XXXXX-XX-X).", 'danger')
+        return redirect(url_for('home'))
+
+    # Check other fields
+    if not all([title, author, year]):
+        flash("Error: Title, Author, and Year fields are required.", 'danger')
         return redirect(url_for('home'))
 
     try:
@@ -90,7 +107,6 @@ def update_book():
 
     return redirect(url_for('home'))
 
-
 @app.route('/remove/<string:isbn>', methods=['POST'])
 def remove_book(isbn):
     """Removes a book from the database."""
@@ -107,7 +123,6 @@ def remove_book(isbn):
             conn.close()
     return redirect(url_for('home'))
 
-
 if __name__ == "__main__":
-    init_db()  # Ensure the database and table exist before running the app
+    init_db()
     app.run(debug=True)
